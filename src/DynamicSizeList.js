@@ -281,7 +281,7 @@ const DynamicSizeList = createListComponent({
 
       if (
         instance.state.scrollOffset + instance.props.height >=
-        instanceProps.totalMeasuredSize - 10
+        element.scrollHeight - 10
       ) {
         generateOffsetMeasurements(props, index, instanceProps);
         instance.forceUpdate();
@@ -489,7 +489,6 @@ const DynamicSizeList = createListComponent({
             data: itemData,
             itemId: itemData[index],
             isScrolling: useIsScrolling ? isScrolling : undefined,
-            style,
           });
 
           // Always wrap children in a ItemMeasurer to detect changes in size.
@@ -505,6 +504,7 @@ const DynamicSizeList = createListComponent({
               onUnmount: onItemRowUnmount,
               width,
               skipResizeClass,
+              style,
             })
           );
         }

@@ -171,6 +171,8 @@ export default function createListComponent({
     }
 
     scrollTo(scrollOffset: number): void {
+      const element = ((this._outerRef: any): HTMLDivElement);
+      this._scrollCorrectionInProgress = true;
       this.setState(
         prevState => ({
           scrollDirection:
@@ -178,7 +180,11 @@ export default function createListComponent({
           scrollOffset: scrollOffset,
           scrollUpdateWasRequested: true,
         }),
-        this._resetIsScrollingDebounced
+        () => {
+          element.scrollTop = scrollOffset;
+          this._scrollCorrectionInProgress = false;
+          this._resetIsScrollingDebounced();
+        }
       );
     }
 
@@ -211,17 +217,6 @@ export default function createListComponent({
     }
 
     componentDidUpdate(prevProps, prevState) {
-      const { direction } = this.props;
-      const { scrollOffset, scrollUpdateWasRequested } = this.state;
-      const element = ((this._outerRef: any): HTMLDivElement);
-
-      if (scrollUpdateWasRequested && this._outerRef !== null) {
-        if (direction === 'horizontal') {
-          element.scrollLeft = scrollOffset;
-        } else {
-          element.scrollTop = scrollOffset;
-        }
-      }
       if (this.state.scrolledToInitIndex) {
         this._callPropsCallbacks();
       }
