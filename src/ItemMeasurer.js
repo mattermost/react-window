@@ -45,6 +45,7 @@ type ItemMeasurerProps = {|
   width: number,
 |};
 
+const scrollBarWidth = 8;
 const scrollableContainerStyles = {
   display: 'inline',
   width: '0px',
@@ -72,10 +73,10 @@ const expandShrinkContainerStyles = {
   overflow: 'hidden',
   zIndex: '-1',
   visibility: 'hidden',
-  left: '-9px',
-  bottom: '-8px',
-  right: '-8px',
-  top: '-9px',
+  left: `-${scrollBarWidth + 1}px`, //8px(scrollbar width) + 1px
+  bottom: `-${scrollBarWidth}px`, //8px because of scrollbar width
+  right: `-${scrollBarWidth}px`, //8px because of scrollbar width
+  top: `-${scrollBarWidth + 1}px`, //8px(scrollbar width) + 1px
 };
 
 const expandShrinkStyles = {
@@ -93,6 +94,15 @@ const shrinkChildStyle = {
   height: '200%',
   width: '200%',
 };
+
+//values below need to be changed when scrollbar width changes
+//TODO: change these to be dynamic
+
+const shrinkScrollDelta = 2 * scrollBarWidth + 1; // 17 = 2* scrollbar width(8px) + 1px as buffer
+
+// 27 = 2* scrollbar width(8px) + 1px as buffer + 10px(this value is based of off lib(Link below). Probably not needed but doesnt hurt to leave)
+//https://github.com/wnr/element-resize-detector/blob/27983e59dce9d8f1296d8f555dc2340840fb0804/src/detection-strategy/scroll.js#L246
+const expandScrollDelta = shrinkScrollDelta + 10;
 
 export default class ItemMeasurer extends Component<ItemMeasurerProps, void> {
   _node: HTMLElement | null = null;
@@ -134,17 +144,22 @@ export default class ItemMeasurer extends Component<ItemMeasurerProps, void> {
     //For more info http://www.backalleycoder.com/2013/03/18/cross-browser-event-based-element-resize-detection/#comment-244
 
     if (typeof this._resizeSensorExpand.current.scrollBy === 'function') {
-      this._resizeSensorExpand.current.scrollBy(height + 27, width + 27);
+      this._resizeSensorExpand.current.scrollBy(
+        height + expandScrollDelta,
+        width + expandScrollDelta
+      );
 
       this._resizeSensorShrink.current.scrollBy(
-        2 * height + 17,
-        2 * width + 17
+        2 * height + shrinkScrollDelta,
+        2 * width + shrinkScrollDelta
       );
     } else {
-      this._resizeSensorExpand.current.scrollLeft = width + 27;
-      this._resizeSensorExpand.current.scrollTop = height + 27;
-      this._resizeSensorShrink.current.scrollTop = 2 * height + 17;
-      this._resizeSensorShrink.current.scrollLeft = 2 * width + 17;
+      this._resizeSensorExpand.current.scrollLeft = width + expandScrollDelta;
+      this._resizeSensorExpand.current.scrollTop = height + expandScrollDelta;
+      this._resizeSensorShrink.current.scrollTop =
+        2 * height + shrinkScrollDelta;
+      this._resizeSensorShrink.current.scrollLeft =
+        2 * width + shrinkScrollDelta;
     }
   };
 
@@ -168,8 +183,8 @@ export default class ItemMeasurer extends Component<ItemMeasurerProps, void> {
       position: 'absolute',
       left: '0',
       top: '0',
-      height: `${this.props.size + 27}px`,
-      width: `${this.props.width + 27}px`,
+      height: `${this.props.size + expandScrollDelta}px`,
+      width: `${this.props.width + expandScrollDelta}px`,
     };
 
     const renderItem = (
@@ -187,7 +202,7 @@ export default class ItemMeasurer extends Component<ItemMeasurerProps, void> {
               </div>
               <div
                 style={expandShrinkStyles}
-                ref={this.resizeSensorShrink}
+                ref={this._resizeSensorShrink}
                 onScroll={this.scrollingDiv}
               >
                 <div style={shrinkChildStyle} />

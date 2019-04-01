@@ -500,6 +500,7 @@ var validateSharedProps = function validateSharedProps(_ref2) {
   }
 };
 
+var scrollBarWidth = 8;
 var scrollableContainerStyles = {
   display: 'inline',
   width: '0px',
@@ -525,10 +526,14 @@ var expandShrinkContainerStyles = {
   overflow: 'hidden',
   zIndex: '-1',
   visibility: 'hidden',
-  left: '-9px',
-  bottom: '-8px',
-  right: '-8px',
-  top: '-9px'
+  left: "-" + (scrollBarWidth + 1) + "px",
+  //8px(scrollbar width) + 1px
+  bottom: "-" + scrollBarWidth + "px",
+  //8px because of scrollbar width
+  right: "-" + scrollBarWidth + "px",
+  //8px because of scrollbar width
+  top: "-" + (scrollBarWidth + 1) + "px" //8px(scrollbar width) + 1px
+
 };
 var expandShrinkStyles = {
   position: 'absolute',
@@ -543,7 +548,14 @@ var shrinkChildStyle = {
   position: 'absolute',
   height: '200%',
   width: '200%'
-};
+}; //values below need to be changed when scrollbar width changes
+//TODO: change these to be dynamic
+
+var shrinkScrollDelta = 2 * scrollBarWidth + 1; // 17 = 2* scrollbar width(8px) + 1px as buffer
+// 27 = 2* scrollbar width(8px) + 1px as buffer + 10px(this value is based of off lib(Link below). Probably not needed but doesnt hurt to leave)
+//https://github.com/wnr/element-resize-detector/blob/27983e59dce9d8f1296d8f555dc2340840fb0804/src/detection-strategy/scroll.js#L246
+
+var expandScrollDelta = shrinkScrollDelta + 10;
 
 var ItemMeasurer =
 /*#__PURE__*/
@@ -578,14 +590,14 @@ function (_Component) {
       //and https://github.com/wnr/element-resize-detector/blob/master/src/detection-strategy/scroll.js
       //For more info http://www.backalleycoder.com/2013/03/18/cross-browser-event-based-element-resize-detection/#comment-244
       if (typeof _this._resizeSensorExpand.current.scrollBy === 'function') {
-        _this._resizeSensorExpand.current.scrollBy(height + 27, width + 27);
+        _this._resizeSensorExpand.current.scrollBy(height + expandScrollDelta, width + expandScrollDelta);
 
-        _this._resizeSensorShrink.current.scrollBy(2 * height + 17, 2 * width + 17);
+        _this._resizeSensorShrink.current.scrollBy(2 * height + shrinkScrollDelta, 2 * width + shrinkScrollDelta);
       } else {
-        _this._resizeSensorExpand.current.scrollLeft = width + 27;
-        _this._resizeSensorExpand.current.scrollTop = height + 27;
-        _this._resizeSensorShrink.current.scrollTop = 2 * height + 17;
-        _this._resizeSensorShrink.current.scrollLeft = 2 * width + 17;
+        _this._resizeSensorExpand.current.scrollLeft = width + expandScrollDelta;
+        _this._resizeSensorExpand.current.scrollTop = height + expandScrollDelta;
+        _this._resizeSensorShrink.current.scrollTop = 2 * height + shrinkScrollDelta;
+        _this._resizeSensorShrink.current.scrollLeft = 2 * width + shrinkScrollDelta;
       }
     };
 
@@ -601,8 +613,8 @@ function (_Component) {
         position: 'absolute',
         left: '0',
         top: '0',
-        height: _this.props.size + 27 + "px",
-        width: _this.props.width + 27 + "px"
+        height: _this.props.size + expandScrollDelta + "px",
+        width: _this.props.width + expandScrollDelta + "px"
       };
       var renderItem = React__default.createElement("div", {
         style: _this.props.style
@@ -621,7 +633,7 @@ function (_Component) {
         style: expandChildStyle
       })), React__default.createElement("div", {
         style: expandShrinkStyles,
-        ref: _this.resizeSensorShrink,
+        ref: _this._resizeSensorShrink,
         onScroll: _this.scrollingDiv
       }, React__default.createElement("div", {
         style: shrinkChildStyle
