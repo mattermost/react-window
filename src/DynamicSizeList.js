@@ -317,7 +317,6 @@ const DynamicSizeList = createListComponent({
 
       if (oldSize) {
         if (index < visibleStopIndex && index > visibleStartIndex) {
-          // console.log(index, visibleStopIndex);
           instance.forceUpdate();
           return;
         }
