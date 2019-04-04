@@ -87,25 +87,26 @@ const findNearestItemBinarySearch = (
   instanceProps: InstanceProps,
   high: number,
   low: number,
-  offset: number
+  offset: number,
+  scrollHeight: number
 ): number => {
   while (low < high) {
-    const offsetNew = instanceProps.totalMeasuredSize - offset - props.height;
+    const topOffset =
+      (scrollHeight || instanceProps.totalMeasuredSize) - offset - props.height;
     const middle = low + Math.floor((high - low) / 2);
     const currentOffset = getItemMetadata(props, middle, instanceProps).offset;
-
     if (!currentOffset) {
       return low;
-    } else if (currentOffset === offsetNew) {
+    } else if (currentOffset === topOffset) {
       return middle;
-    } else if (currentOffset < offsetNew) {
+    } else if (currentOffset < topOffset) {
       low = middle + 1;
-    } else if (currentOffset > offsetNew) {
+    } else if (currentOffset > topOffset) {
       high = middle - 1;
     }
   }
   if (low > 0) {
-    return low - 1;
+    return low;
   } else {
     return 0;
   }
@@ -183,6 +184,7 @@ const DynamicSizeList = createListComponent({
   getStartIndexForOffset: (
     props: Props<any>,
     offset: number,
+    scrollHeight: number,
     instanceProps: InstanceProps
   ): number => {
     const { totalMeasuredSize } = instanceProps;
@@ -196,7 +198,8 @@ const DynamicSizeList = createListComponent({
         instanceProps,
         itemCount,
         0,
-        offset
+        offset,
+        scrollHeight
       );
     }
 
@@ -208,12 +211,14 @@ const DynamicSizeList = createListComponent({
     props: Props<any>,
     startIndex: number,
     scrollOffset: number,
+    scrollHeight,
     instanceProps: InstanceProps
   ): number => {
     const { itemCount } = props;
 
     let stopIndex = startIndex;
-    const maxOffset = instanceProps.totalMeasuredSize - scrollOffset;
+    const maxOffset =
+      (scrollHeight || instanceProps.totalMeasuredSize) - scrollOffset;
     const itemMetadata = getItemMetadata(props, stopIndex, instanceProps);
     let offset = itemMetadata.offset + (itemMetadata.size || 0);
     let closestOffsetIndex = 0;
@@ -231,10 +236,10 @@ const DynamicSizeList = createListComponent({
     }
 
     if (stopIndex >= itemCount) {
-      return closestOffsetIndex;
+      return closestOffsetIndex - 1;
     }
 
-    return stopIndex;
+    return stopIndex - 1;
   },
 
   initInstanceProps(props: Props<any>, instance: any): InstanceProps {
@@ -272,9 +277,9 @@ const DynamicSizeList = createListComponent({
       }
 
       delta += newSize - oldSize;
-      itemSizeMap[key] = newSize;
 
       if (!instance.state.scrolledToInitIndex) {
+        itemSizeMap[key] = newSize;
         generateOffsetMeasurements(props, index, instanceProps);
         instance.forceUpdate();
         return;
@@ -285,23 +290,42 @@ const DynamicSizeList = createListComponent({
         instance.state.scrollOffset + instance.props.height >=
         element.scrollHeight - 10
       ) {
+        itemSizeMap[key] = newSize;
         generateOffsetMeasurements(props, index, instanceProps);
         instance.forceUpdate();
         instance.scrollToItem(0, 'end');
         return;
       }
 
-      const [, , , visibleStopIndex] = instance._getRangeToRender(
-        element.scrollTop
-      );
+      let previousScrollTop = element.scrollTop;
+
+      if (oldSize) {
+        if (element.scrollTop + delta === instance.state.scrollOffset) {
+          previousScrollTop = instance.state.scrollOffset;
+        }
+      }
+
+      const [
+        ,
+        ,
+        visibleStartIndex,
+        visibleStopIndex,
+      ] = instance._getRangeToRender(previousScrollTop, element.scrollHeight);
+      itemSizeMap[key] = newSize;
 
       generateOffsetMeasurements(props, index, instanceProps);
 
-      if (index < visibleStopIndex - 1) {
-        instance.forceUpdate();
-        return;
+      if (oldSize) {
+        if (index < visibleStopIndex && index > visibleStartIndex) {
+          // console.log(index, visibleStopIndex);
+          instance.forceUpdate();
+          return;
+        }
+      } else {
+        if (index < visibleStartIndex) {
+          return;
+        }
       }
-
       instance._scrollCorrectionInProgress = true;
 
       instance.setState(

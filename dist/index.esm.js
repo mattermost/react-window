@@ -259,7 +259,7 @@ function createListComponent(_ref) {
 
       this._commitHook();
 
-      if (prevProps.itemData.length !== this.props.itemData.length) {
+      if (prevProps.itemData !== this.props.itemData) {
         this._dataChange();
       }
 
@@ -372,8 +372,8 @@ function createListComponent(_ref) {
       }
 
       var scrollOffsetValue = scrollTop >= 0 ? scrollTop : scrollOffset;
-      var startIndex = getStartIndexForOffset(this.props, scrollOffsetValue, this._instanceProps);
-      var stopIndex = getStopIndexForStartIndex(this.props, startIndex, scrollOffsetValue, this._instanceProps); // Overscan by one item in each direction so that tab/focus works.
+      var startIndex = getStartIndexForOffset(this.props, scrollOffsetValue, scrollHeight, this._instanceProps);
+      var stopIndex = getStopIndexForStartIndex(this.props, startIndex, scrollOffsetValue, scrollHeight, this._instanceProps); // Overscan by one item in each direction so that tab/focus works.
       // If there isn't at least one extra item, tab loops back around.
 
       var overscanBackward = scrollDirection === 'forward' ? overscanCountBackward : Math.max(1, overscanCountForward);
@@ -747,25 +747,25 @@ var generateOffsetMeasurements = function generateOffsetMeasurements(props, inde
   }
 };
 
-var findNearestItemBinarySearch = function findNearestItemBinarySearch(props, instanceProps, high, low, offset) {
+var findNearestItemBinarySearch = function findNearestItemBinarySearch(props, instanceProps, high, low, offset, scrollHeight) {
   while (low < high) {
-    var offsetNew = instanceProps.totalMeasuredSize - offset - props.height;
+    var topOffset = (scrollHeight || instanceProps.totalMeasuredSize) - offset - props.height;
     var middle = low + Math.floor((high - low) / 2);
     var currentOffset = getItemMetadata(props, middle, instanceProps).offset;
 
     if (!currentOffset) {
       return low;
-    } else if (currentOffset === offsetNew) {
+    } else if (currentOffset === topOffset) {
       return middle;
-    } else if (currentOffset < offsetNew) {
+    } else if (currentOffset < topOffset) {
       low = middle + 1;
-    } else if (currentOffset > offsetNew) {
+    } else if (currentOffset > topOffset) {
       high = middle - 1;
     }
   }
 
   if (low > 0) {
-    return low - 1;
+    return low;
   } else {
     return 0;
   }
@@ -826,22 +826,22 @@ createListComponent({
 
     }
   },
-  getStartIndexForOffset: function getStartIndexForOffset(props, offset, instanceProps) {
+  getStartIndexForOffset: function getStartIndexForOffset(props, offset, scrollHeight, instanceProps) {
     var totalMeasuredSize = instanceProps.totalMeasuredSize;
     var itemCount = props.itemCount; // If we've already positioned and measured past this point,
     // Use a binary search to find the closets cell.
 
     if (offset <= totalMeasuredSize) {
-      return findNearestItemBinarySearch(props, instanceProps, itemCount, 0, offset);
+      return findNearestItemBinarySearch(props, instanceProps, itemCount, 0, offset, scrollHeight);
     } // Otherwise render a new batch of items starting from where 0.
 
 
     return 0;
   },
-  getStopIndexForStartIndex: function getStopIndexForStartIndex(props, startIndex, scrollOffset, instanceProps) {
+  getStopIndexForStartIndex: function getStopIndexForStartIndex(props, startIndex, scrollOffset, scrollHeight, instanceProps) {
     var itemCount = props.itemCount;
     var stopIndex = startIndex;
-    var maxOffset = instanceProps.totalMeasuredSize - scrollOffset;
+    var maxOffset = (scrollHeight || instanceProps.totalMeasuredSize) - scrollOffset;
     var itemMetadata = getItemMetadata(props, stopIndex, instanceProps);
     var offset = itemMetadata.offset + (itemMetadata.size || 0);
     var closestOffsetIndex = 0;
@@ -863,10 +863,10 @@ createListComponent({
     }
 
     if (stopIndex >= itemCount) {
-      return closestOffsetIndex;
+      return closestOffsetIndex - 1;
     }
 
-    return stopIndex;
+    return stopIndex - 1;
   },
   initInstanceProps: function initInstanceProps(props, instance) {
     var _ref3 = props,
@@ -902,9 +902,9 @@ createListComponent({
       }
 
       delta += newSize - oldSize;
-      itemSizeMap[key] = newSize;
 
       if (!instance.state.scrolledToInitIndex) {
+        itemSizeMap[key] = newSize;
         generateOffsetMeasurements(props, index, instanceProps);
         instance.forceUpdate();
         return;
@@ -913,20 +913,38 @@ createListComponent({
       var element = instance._outerRef;
 
       if (instance.state.scrollOffset + instance.props.height >= element.scrollHeight - 10) {
+        itemSizeMap[key] = newSize;
         generateOffsetMeasurements(props, index, instanceProps);
         instance.forceUpdate();
         instance.scrollToItem(0, 'end');
         return;
       }
 
-      var _instance$_getRangeTo = instance._getRangeToRender(element.scrollTop),
+      var previousScrollTop = element.scrollTop;
+
+      if (oldSize) {
+        if (element.scrollTop + delta === instance.state.scrollOffset) {
+          previousScrollTop = instance.state.scrollOffset;
+        }
+      }
+
+      var _instance$_getRangeTo = instance._getRangeToRender(previousScrollTop, element.scrollHeight),
+          visibleStartIndex = _instance$_getRangeTo[2],
           visibleStopIndex = _instance$_getRangeTo[3];
 
+      itemSizeMap[key] = newSize;
       generateOffsetMeasurements(props, index, instanceProps);
 
-      if (index < visibleStopIndex - 1) {
-        instance.forceUpdate();
-        return;
+      if (oldSize) {
+        if (index < visibleStopIndex && index > visibleStartIndex) {
+          // console.log(index, visibleStopIndex);
+          instance.forceUpdate();
+          return;
+        }
+      } else {
+        if (index < visibleStartIndex) {
+          return;
+        }
       }
 
       instance._scrollCorrectionInProgress = true;

@@ -213,7 +213,7 @@ export default function createListComponent({
       }
 
       this._commitHook();
-      if (prevProps.itemData.length !== this.props.itemData.length) {
+      if (prevProps.itemData !== this.props.itemData) {
         this._dataChange();
       }
 
@@ -438,12 +438,14 @@ export default function createListComponent({
       const startIndex = getStartIndexForOffset(
         this.props,
         scrollOffsetValue,
+        scrollHeight,
         this._instanceProps
       );
       const stopIndex = getStopIndexForStartIndex(
         this.props,
         startIndex,
         scrollOffsetValue,
+        scrollHeight,
         this._instanceProps
       );
 
