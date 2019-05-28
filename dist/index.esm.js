@@ -731,7 +731,7 @@ function (_Component) {
   };
 
   _proto.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
-    if (nextProps.width !== this.props.width || nextProps.size !== this.props.size) {
+    if (nextProps.width !== this.props.width || nextProps.size !== this.props.size || nextProps.itemCount !== this.props.itemCount) {
       return true;
     }
 
@@ -1136,7 +1136,8 @@ createListComponent({
               itemId: itemKey(_index2),
               width: width,
               skipResizeClass: skipResizeClass,
-              onUnmount: onItemRowUnmount
+              onUnmount: onItemRowUnmount,
+              itemCount: itemCount
             }));
           } else {
             items.push(createElement('div', {

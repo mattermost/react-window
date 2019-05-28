@@ -448,6 +448,7 @@ const DynamicSizeList = createListComponent({
                 width,
                 skipResizeClass,
                 onUnmount: onItemRowUnmount,
+                itemCount,
               })
             );
           } else {
