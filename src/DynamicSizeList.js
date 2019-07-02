@@ -81,26 +81,17 @@ const findNearestItemBinarySearch = (
   instanceProps: InstanceProps,
   high: number,
   low: number,
-  offset: number
+  scrollOffset: number
 ): number => {
-  while (low < high) {
-    const offsetNew = offset;
-    const middle = low + Math.floor((high - low) / 2);
-    const currentOffset = getItemMetadata(props, middle, instanceProps).offset;
-
-    if (currentOffset === offsetNew) {
-      return middle;
-    } else if (currentOffset > offsetNew) {
-      low = middle + 1;
-    } else if (currentOffset < offsetNew) {
-      high = middle - 1;
+  let index = low;
+  while (low <= high) {
+    var currentOffset = getItemMetadata(props, low, instanceProps).offset;
+    if (scrollOffset - currentOffset <= 0) {
+      index = low;
     }
+    low++;
   }
-  if (low > 0) {
-    return low - 1;
-  } else {
-    return 0;
-  }
+  return index;
 };
 
 const getEstimatedTotalSize = (
@@ -259,11 +250,13 @@ const DynamicSizeList = createListComponent({
       }
 
       const element = ((instance._outerRef: any): HTMLDivElement);
+      const wasAtBottom =
+        instance.props.height + element.scrollTop >=
+        instanceProps.totalMeasuredSize - 10;
 
       if (
-        instance.props.height + element.scrollTop >=
-          instanceProps.totalMeasuredSize - 10 ||
-        instance._keepScrollToBottom
+        (wasAtBottom || instance._keepScrollToBottom) &&
+        instance.props.correctScrollToBottom
       ) {
         generateOffsetMeasurements(props, index, instanceProps);
         instance.scrollToItem(0, 'end');
