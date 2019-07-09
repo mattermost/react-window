@@ -841,26 +841,20 @@ var generateOffsetMeasurements = function generateOffsetMeasurements(props, inde
   }
 };
 
-var findNearestItemBinarySearch = function findNearestItemBinarySearch(props, instanceProps, high, low, offset) {
-  while (low < high) {
-    var offsetNew = offset;
-    var middle = low + Math.floor((high - low) / 2);
-    var currentOffset = getItemMetadata(props, middle, instanceProps).offset;
+var findNearestItemBinarySearch = function findNearestItemBinarySearch(props, instanceProps, high, low, scrollOffset) {
+  var index = low;
 
-    if (currentOffset === offsetNew) {
-      return middle;
-    } else if (currentOffset > offsetNew) {
-      low = middle + 1;
-    } else if (currentOffset < offsetNew) {
-      high = middle - 1;
+  while (low <= high) {
+    var currentOffset = getItemMetadata(props, low, instanceProps).offset;
+
+    if (scrollOffset - currentOffset <= 0) {
+      index = low;
     }
+
+    low++;
   }
 
-  if (low > 0) {
-    return low - 1;
-  } else {
-    return 0;
-  }
+  return index;
 };
 
 var getEstimatedTotalSize = function getEstimatedTotalSize(_ref, _ref2) {
@@ -988,8 +982,9 @@ createListComponent({
       }
 
       var element = instance._outerRef;
+      var wasAtBottom = instance.props.height + element.scrollTop >= instanceProps.totalMeasuredSize - 10;
 
-      if (instance.props.height + element.scrollTop >= instanceProps.totalMeasuredSize - 10 || instance._keepScrollToBottom) {
+      if ((wasAtBottom || instance._keepScrollToBottom) && instance.props.correctScrollToBottom) {
         generateOffsetMeasurements(props, index, instanceProps);
         instance.scrollToItem(0, 'end');
         instance.forceUpdate();
