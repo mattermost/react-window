@@ -195,7 +195,7 @@ function createListComponent(_ref) {
           return;
         }
 
-        if (_this.state.scrollHeight !== 0 && scrollHeight !== _this.state.scrollHeight) {
+        if (scrollHeight !== _this.state.scrollHeight) {
           _this.setState({
             scrollHeight: scrollHeight
           });
