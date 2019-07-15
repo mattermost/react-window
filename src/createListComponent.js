@@ -666,10 +666,7 @@ export default function createListComponent({
         return;
       }
 
-      if (
-        this.state.scrollHeight !== 0 &&
-        scrollHeight !== this.state.scrollHeight
-      ) {
+      if (scrollHeight !== this.state.scrollHeight) {
         this.setState({
           scrollHeight,
         });
