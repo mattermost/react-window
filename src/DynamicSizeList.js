@@ -368,7 +368,7 @@ const DynamicSizeList = createListComponent({
         instance.scrollToItem(index, position);
 
         // Adding a frame difference so UI settles
-        // The number of items usually rendered are more than the items rendered on load becuase of limit in initRangeToRender
+        // The number of items usually rendered are more than the items rendered on load because of limit in initRangeToRender
         // This is used for scrolling to the position and then the flags _keepScrollPosition, _keepScrollToBottom are used to keep position
         // while new items are rendered after the first mount because if difference in initRangeToRender and OVERSCAN_COUNT_BACKWARD, OVERSCAN_COUNT_FORWARD
         instance._initScrollAnimationFrameRequest = window.requestAnimationFrame(
