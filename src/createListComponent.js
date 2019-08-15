@@ -201,6 +201,8 @@ export default function createListComponent({
           }
         }
       );
+
+      this.forceUpdate();
     }
 
     scrollToItem(index: number, align: ScrollToAlign = 'auto'): void {

@@ -265,6 +265,7 @@ function createListComponent(_ref) {
           _this2.scrollBy(_this2.state.scrollOffset, _this2.state.scrollByValue)();
         }
       });
+      this.forceUpdate();
     };
 
     _proto.scrollToItem = function scrollToItem(index, align) {
