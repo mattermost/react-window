@@ -81,7 +81,6 @@ function createListComponent(_ref) {
       _this._scrollByCorrection = null;
       _this._keepScrollPosition = false;
       _this._keepScrollToBottom = false;
-      _this._initScrollAnimationFrameRequest = null;
       _this.state = {
         scrollDirection: 'backward',
         scrollOffset: typeof _this.props.initialScrollOffset === 'number' ? _this.props.initialScrollOffset : 0,
@@ -1091,20 +1090,14 @@ createListComponent({
     };
 
     instance._commitHook = function () {
-      if (!instance.state.scrolledToInitIndex && Object.keys(instanceProps.itemOffsetMap).length && !instance._initScrollAnimationFrameRequest) {
+      if (!instance.state.scrolledToInitIndex && Object.keys(instanceProps.itemOffsetMap).length) {
         var _instance$props$initS = instance.props.initScrollToIndex(),
             _index = _instance$props$initS.index,
             position = _instance$props$initS.position;
 
-        instance.scrollToItem(_index, position); // Adding a frame difference so UI settles
-        // The number of items usually rendered are more than the items rendered on load becuase of limit in initRangeToRender
-        // This is used for scrolling to the position and then the flags _keepScrollPosition, _keepScrollToBottom are used to keep position
-        // while new items are rendered after the first mount because if difference in initRangeToRender and OVERSCAN_COUNT_BACKWARD, OVERSCAN_COUNT_FORWARD
-
-        instance._initScrollAnimationFrameRequest = window.requestAnimationFrame(function () {
-          instance.setState({
-            scrolledToInitIndex: true
-          });
+        instance.scrollToItem(_index, position);
+        instance.setState({
+          scrolledToInitIndex: true
         });
 
         if (_index === 0) {

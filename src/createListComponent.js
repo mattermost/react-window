@@ -129,8 +129,6 @@ export default function createListComponent({
     _scrollByCorrection = null;
     _keepScrollPosition = false;
     _keepScrollToBottom = false;
-    _initScrollAnimationFrameRequest = null;
-
     static defaultProps = {
       direction: 'vertical',
       innerTagName: 'div',
