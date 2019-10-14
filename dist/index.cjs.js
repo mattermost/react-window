@@ -5,8 +5,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var _extends = _interopDefault(require('@babel/runtime/helpers/extends'));
-var _inheritsLoose = _interopDefault(require('@babel/runtime/helpers/inheritsLoose'));
 var _assertThisInitialized = _interopDefault(require('@babel/runtime/helpers/assertThisInitialized'));
+var _inheritsLoose = _interopDefault(require('@babel/runtime/helpers/inheritsLoose'));
 var memoizeOne = _interopDefault(require('memoize-one'));
 var React = require('react');
 var React__default = _interopDefault(React);
@@ -75,7 +75,7 @@ function createListComponent(_ref) {
       var _this;
 
       _this = _PureComponent.call(this, props) || this;
-      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_assertThisInitialized(_this)));
+      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_this));
       _this._outerRef = void 0;
       _this._scrollCorrectionInProgress = false;
       _this._scrollByCorrection = null;
@@ -231,7 +231,7 @@ function createListComponent(_ref) {
         }
       };
 
-      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_assertThisInitialized(_this)));
+      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_this));
       return _this;
     }
 
@@ -755,14 +755,6 @@ function (_Component) {
     }
   };
 
-  _proto.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
-    if (nextProps.width !== this.props.width || nextProps.size !== this.props.size || nextProps.itemCount !== this.props.itemCount) {
-      return true;
-    }
-
-    return false;
-  };
-
   _proto.componentDidUpdate = function componentDidUpdate(prevProps) {
     if (prevProps.size === 0 && this.props.size !== 0 || prevProps.size !== this.props.size) {
       this.positionScrollBars();
@@ -1256,7 +1248,7 @@ function createGridComponent(_ref2) {
       var _this;
 
       _this = _PureComponent.call(this, props) || this;
-      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_assertThisInitialized(_this)));
+      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_this));
       _this._resetIsScrollingTimeoutId = null;
       _this._outerRef = void 0;
       _this.state = {
