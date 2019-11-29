@@ -205,7 +205,11 @@ export default function createListComponent({
       this.forceUpdate();
     }
 
-    scrollToItem(index: number, align: ScrollToAlign = 'auto'): void {
+    scrollToItem(
+      index: number,
+      align: ScrollToAlign = 'auto',
+      offset = 0
+    ): void {
       const { scrollOffset } = this.state;
 
       //Ideally the below scrollTo works fine but firefox has 6px issue and stays 6px from bottom when corrected
@@ -223,7 +227,7 @@ export default function createListComponent({
           align,
           scrollOffset,
           this._instanceProps
-        )
+        ) + offset
       );
     }
 

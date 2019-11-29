@@ -363,8 +363,8 @@ const DynamicSizeList = createListComponent({
         !instance.state.scrolledToInitIndex &&
         Object.keys(instanceProps.itemOffsetMap).length
       ) {
-        const { index, position } = instance.props.initScrollToIndex();
-        instance.scrollToItem(index, position);
+        const { index, position, offset } = instance.props.initScrollToIndex();
+        instance.scrollToItem(index, position, offset);
         instance.setState({
           scrolledToInitIndex: true,
         });

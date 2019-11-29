@@ -1,6 +1,6 @@
 import _extends from '@babel/runtime/helpers/esm/extends';
-import _assertThisInitialized from '@babel/runtime/helpers/esm/assertThisInitialized';
 import _inheritsLoose from '@babel/runtime/helpers/esm/inheritsLoose';
+import _assertThisInitialized from '@babel/runtime/helpers/esm/assertThisInitialized';
 import memoizeOne from 'memoize-one';
 import React, { createElement, PureComponent, Component } from 'react';
 import { findDOMNode } from 'react-dom';
@@ -68,7 +68,7 @@ function createListComponent(_ref) {
       var _this;
 
       _this = _PureComponent.call(this, props) || this;
-      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_this));
+      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_assertThisInitialized(_this)));
       _this._outerRef = void 0;
       _this._scrollCorrectionInProgress = false;
       _this._scrollByCorrection = null;
@@ -224,7 +224,7 @@ function createListComponent(_ref) {
         }
       };
 
-      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_this));
+      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_assertThisInitialized(_this)));
       return _this;
     }
 
@@ -261,9 +261,13 @@ function createListComponent(_ref) {
       this.forceUpdate();
     };
 
-    _proto.scrollToItem = function scrollToItem(index, align) {
+    _proto.scrollToItem = function scrollToItem(index, align, offset) {
       if (align === void 0) {
         align = 'auto';
+      }
+
+      if (offset === void 0) {
+        offset = 0;
       }
 
       var scrollOffset = this.state.scrollOffset; //Ideally the below scrollTo works fine but firefox has 6px issue and stays 6px from bottom when corrected
@@ -276,7 +280,7 @@ function createListComponent(_ref) {
         return;
       }
 
-      this.scrollTo(getOffsetForIndexAndAlignment(this.props, index, align, scrollOffset, this._instanceProps));
+      this.scrollTo(getOffsetForIndexAndAlignment(this.props, index, align, scrollOffset, this._instanceProps) + offset);
     };
 
     _proto.componentDidMount = function componentDidMount() {
@@ -1079,9 +1083,10 @@ createListComponent({
       if (!instance.state.scrolledToInitIndex && Object.keys(instanceProps.itemOffsetMap).length) {
         var _instance$props$initS = instance.props.initScrollToIndex(),
             _index = _instance$props$initS.index,
-            position = _instance$props$initS.position;
+            position = _instance$props$initS.position,
+            offset = _instance$props$initS.offset;
 
-        instance.scrollToItem(_index, position);
+        instance.scrollToItem(_index, position, offset);
         instance.setState({
           scrolledToInitIndex: true
         });
@@ -1241,7 +1246,7 @@ function createGridComponent(_ref2) {
       var _this;
 
       _this = _PureComponent.call(this, props) || this;
-      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_this));
+      _this._instanceProps = initInstanceProps(_this.props, _assertThisInitialized(_assertThisInitialized(_this)));
       _this._resetIsScrollingTimeoutId = null;
       _this._outerRef = void 0;
       _this.state = {
