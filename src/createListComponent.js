@@ -219,16 +219,21 @@ export default function createListComponent({
         this.scrollTo(element.scrollHeight - this.props.height);
         return;
       }
-
-      this.scrollTo(
-        getOffsetForIndexAndAlignment(
-          this.props,
-          index,
-          align,
-          scrollOffset,
-          this._instanceProps
-        ) + offset
+      const offsetOfItem = getOffsetForIndexAndAlignment(
+        this.props,
+        index,
+        align,
+        scrollOffset,
+        this._instanceProps
       );
+      if (!offsetOfItem) {
+        const itemSize = getItemSize(this.props, index, this._instanceProps);
+        if (!itemSize && this.props.scrollTofailed) {
+          this.props.scrollTofailed(index);
+        }
+      }
+
+      this.scrollTo(offsetOfItem + offset);
     }
 
     componentDidMount() {
@@ -270,18 +275,21 @@ export default function createListComponent({
           scrollDirection,
           scrollOffset,
           scrollUpdateWasRequested,
+          scrollHeight,
         } = this.state;
 
         const {
           scrollDirection: prevScrollDirection,
           scrollOffset: prevScrollOffset,
           scrollUpdateWasRequested: prevScrollUpdateWasRequested,
+          scrollHeight: previousScrollHeight,
         } = prevState;
 
         if (
           scrollDirection !== prevScrollDirection ||
           scrollOffset !== prevScrollOffset ||
-          scrollUpdateWasRequested !== prevScrollUpdateWasRequested
+          scrollUpdateWasRequested !== prevScrollUpdateWasRequested ||
+          scrollHeight !== previousScrollHeight
         ) {
           this._callPropsCallbacks();
         }

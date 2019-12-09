@@ -280,7 +280,17 @@ function createListComponent(_ref) {
         return;
       }
 
-      this.scrollTo(getOffsetForIndexAndAlignment(this.props, index, align, scrollOffset, this._instanceProps) + offset);
+      var offsetOfItem = getOffsetForIndexAndAlignment(this.props, index, align, scrollOffset, this._instanceProps);
+
+      if (!offsetOfItem) {
+        var itemSize = getItemSize(this.props, index, this._instanceProps);
+
+        if (!itemSize && this.props.scrollTofailed) {
+          this.props.scrollTofailed(index);
+        }
+      }
+
+      this.scrollTo(offsetOfItem + offset);
     };
 
     _proto.componentDidMount = function componentDidMount() {
@@ -320,12 +330,14 @@ function createListComponent(_ref) {
         var _this$state = this.state,
             _scrollDirection = _this$state.scrollDirection,
             _scrollOffset = _this$state.scrollOffset,
-            _scrollUpdateWasRequested = _this$state.scrollUpdateWasRequested;
+            _scrollUpdateWasRequested = _this$state.scrollUpdateWasRequested,
+            _scrollHeight = _this$state.scrollHeight;
         var prevScrollDirection = prevState.scrollDirection,
             prevScrollOffset = prevState.scrollOffset,
-            prevScrollUpdateWasRequested = prevState.scrollUpdateWasRequested;
+            prevScrollUpdateWasRequested = prevState.scrollUpdateWasRequested,
+            previousScrollHeight = prevState.scrollHeight;
 
-        if (_scrollDirection !== prevScrollDirection || _scrollOffset !== prevScrollOffset || _scrollUpdateWasRequested !== prevScrollUpdateWasRequested) {
+        if (_scrollDirection !== prevScrollDirection || _scrollOffset !== prevScrollOffset || _scrollUpdateWasRequested !== prevScrollUpdateWasRequested || _scrollHeight !== previousScrollHeight) {
           this._callPropsCallbacks();
         }
 
