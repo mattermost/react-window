@@ -285,8 +285,8 @@ function createListComponent(_ref) {
       if (!offsetOfItem) {
         var itemSize = getItemSize(this.props, index, this._instanceProps);
 
-        if (!itemSize && this.props.scrollTofailed) {
-          this.props.scrollTofailed(index);
+        if (!itemSize && this.props.scrollToFailed) {
+          this.props.scrollToFailed(index);
         }
       }
 

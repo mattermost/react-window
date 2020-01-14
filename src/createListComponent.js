@@ -228,8 +228,8 @@ export default function createListComponent({
       );
       if (!offsetOfItem) {
         const itemSize = getItemSize(this.props, index, this._instanceProps);
-        if (!itemSize && this.props.scrollTofailed) {
-          this.props.scrollTofailed(index);
+        if (!itemSize && this.props.scrollToFailed) {
+          this.props.scrollToFailed(index);
         }
       }
 
