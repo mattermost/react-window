@@ -205,7 +205,11 @@ export default function createListComponent({
       this.forceUpdate();
     }
 
-    scrollToItem(index: number, align: ScrollToAlign = 'auto'): void {
+    scrollToItem(
+      index: number,
+      align: ScrollToAlign = 'auto',
+      offset = 0
+    ): void {
       const { scrollOffset } = this.state;
 
       //Ideally the below scrollTo works fine but firefox has 6px issue and stays 6px from bottom when corrected
@@ -215,16 +219,21 @@ export default function createListComponent({
         this.scrollTo(element.scrollHeight - this.props.height);
         return;
       }
-
-      this.scrollTo(
-        getOffsetForIndexAndAlignment(
-          this.props,
-          index,
-          align,
-          scrollOffset,
-          this._instanceProps
-        )
+      const offsetOfItem = getOffsetForIndexAndAlignment(
+        this.props,
+        index,
+        align,
+        scrollOffset,
+        this._instanceProps
       );
+      if (!offsetOfItem) {
+        const itemSize = getItemSize(this.props, index, this._instanceProps);
+        if (!itemSize && this.props.scrollToFailed) {
+          this.props.scrollToFailed(index);
+        }
+      }
+
+      this.scrollTo(offsetOfItem + offset);
     }
 
     componentDidMount() {
@@ -266,18 +275,21 @@ export default function createListComponent({
           scrollDirection,
           scrollOffset,
           scrollUpdateWasRequested,
+          scrollHeight,
         } = this.state;
 
         const {
           scrollDirection: prevScrollDirection,
           scrollOffset: prevScrollOffset,
           scrollUpdateWasRequested: prevScrollUpdateWasRequested,
+          scrollHeight: previousScrollHeight,
         } = prevState;
 
         if (
           scrollDirection !== prevScrollDirection ||
           scrollOffset !== prevScrollOffset ||
-          scrollUpdateWasRequested !== prevScrollUpdateWasRequested
+          scrollUpdateWasRequested !== prevScrollUpdateWasRequested ||
+          scrollHeight !== previousScrollHeight
         ) {
           this._callPropsCallbacks();
         }
