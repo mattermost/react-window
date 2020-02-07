@@ -184,14 +184,6 @@ function createListComponent(_ref) {
             scrollHeight = _event$currentTarget.scrollHeight;
 
         if (_this._scrollCorrectionInProgress) {
-          if (_this.state.scrollUpdateWasRequested) {
-            _this.setState(function () {
-              return {
-                scrollUpdateWasRequested: false
-              };
-            });
-          }
-
           return;
         }
 

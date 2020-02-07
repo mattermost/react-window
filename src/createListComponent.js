@@ -672,11 +672,6 @@ export default function createListComponent({
       }
       const { scrollTop, scrollHeight } = event.currentTarget;
       if (this._scrollCorrectionInProgress) {
-        if (this.state.scrollUpdateWasRequested) {
-          this.setState(() => ({
-            scrollUpdateWasRequested: false,
-          }));
-        }
         return;
       }
 
