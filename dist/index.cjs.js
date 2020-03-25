@@ -12,42 +12,6 @@ var React = require('react');
 var React__default = _interopDefault(React);
 var reactDom = require('react-dom');
 
-// From https://stackoverflow.com/a/13348618/2902013
-// please note,
-// that IE11 now returns undefined again for window.chrome
-// and new Opera 30 outputs true for window.chrome
-// but needs to check if window.opr is not undefined
-// and new IE Edge outputs to true now for window.chrome
-// and if not iOS Chrome check
-// so use the below updated condition
-// we return true for electron as well as electron also does not immediately correct scroll
-// similar to chrome and loads another set of posts.
-// chromimum seems to work fine so mostly in near future chrome fixes the issue
-function isBrowserChrome() {
-  var isChromium = window.chrome;
-  var winNav = window.navigator;
-  var vendorName = winNav.vendor;
-  var isOpera = typeof window.opr !== 'undefined';
-  var isIEedge = winNav.userAgent.indexOf('Edge') > -1;
-  var isIOSChrome = winNav.userAgent.match('CriOS');
-  var isElectron = winNav.userAgent.toLowerCase().indexOf(' electron/') > -1;
-
-  if (isIOSChrome || isElectron) {
-    return true;
-  } else if (isChromium !== null && typeof isChromium !== 'undefined' && vendorName === 'Google Inc.' && isOpera === false && isIEedge === false) {
-    return true;
-  }
-
-  return false;
-}
-function isBrowserSafari() {
-  var userAgent = window.navigator.userAgent;
-  return userAgent.indexOf('Safari') !== -1 && userAgent.indexOf('Chrome') === -1;
-}
-
-var isChrome =
-/*#__PURE__*/
-isBrowserChrome();
 var defaultItemKey = function defaultItemKey(index, data) {
   return index;
 };
@@ -259,7 +223,7 @@ function createListComponent(_ref) {
           scrollByValue: scrollByValue
         };
       }, function () {
-        if (isChrome && useAnimationFrame) {
+        if (useAnimationFrame) {
           _this2._scrollByCorrection = window.requestAnimationFrame(_this2.scrollBy(_this2.state.scrollOffset, _this2.state.scrollByValue));
         } else {
           _this2.scrollBy(_this2.state.scrollOffset, _this2.state.scrollByValue)();
@@ -293,7 +257,11 @@ function createListComponent(_ref) {
         var itemSize = getItemSize(this.props, index, this._instanceProps);
 
         if (!itemSize && this.props.scrollToFailed) {
-          this.props.scrollToFailed(index);
+          if (this.state.scrolledToInitIndex) {
+            this.props.scrollToFailed(index);
+          } else {
+            console.warn('Failed to do initial scroll correction', this.props.initRangeToRender, index);
+          }
         }
       }
 
@@ -462,23 +430,23 @@ function createListComponent(_ref) {
       if (typeof this.props.onScroll === 'function') {
         this._callOnScroll(scrollDirection, scrollOffset, scrollUpdateWasRequested, scrollHeight, height);
       }
-    } // This method is called after mount and update.
+    }; // This method is called after mount and update.
     // List implementations can override this method to be notified.
-    ;
 
-    _proto._commitHook = function _commitHook() {} // This method is called before unmounting.
+
+    _proto._commitHook = function _commitHook() {}; // This method is called before unmounting.
     // List implementations can override this method to be notified.
-    ;
 
-    _proto._unmountHook = function _unmountHook() {} // This method is called when data changes
+
+    _proto._unmountHook = function _unmountHook() {}; // This method is called when data changes
     // List implementations can override this method to be notified.
-    ;
 
-    _proto._dataChange = function _dataChange() {} // Lazily create and cache item styles while scrolling,
+
+    _proto._dataChange = function _dataChange() {}; // Lazily create and cache item styles while scrolling,
     // So that pure component sCU will prevent re-renders.
     // We maintain this cache, and pass a style prop rather than index,
     // So that List can clear cached styles and force item re-render if necessary.
-    ;
+
 
     _proto._getRangeToRender = function _getRangeToRender(scrollTop, scrollHeight) {
       var _this$props5 = this.props,
@@ -579,6 +547,11 @@ var validateSharedProps = function validateSharedProps(_ref2) {
     }
   }
 };
+
+function isBrowserSafari() {
+  var userAgent = window.navigator.userAgent;
+  return userAgent.indexOf('Safari') !== -1 && userAgent.indexOf('Chrome') === -1;
+}
 
 var isSafari =
 /*#__PURE__*/
@@ -1575,11 +1548,11 @@ function createGridComponent(_ref2) {
 
         this._callOnScroll(_scrollLeft, _scrollTop, _horizontalScrollDirection, _verticalScrollDirection, _scrollUpdateWasRequested);
       }
-    } // Lazily create and cache item styles while scrolling,
+    }; // Lazily create and cache item styles while scrolling,
     // So that pure component sCU will prevent re-renders.
     // We maintain this cache, and pass a style prop rather than index,
     // So that List can clear cached styles and force item re-render if necessary.
-    ;
+
 
     _proto._getHorizontalRangeToRender = function _getHorizontalRangeToRender() {
       var _this$props4 = this.props,

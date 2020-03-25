@@ -2,9 +2,7 @@
 
 import memoizeOne from 'memoize-one';
 import { createElement, PureComponent } from 'react';
-import { isBrowserChrome } from './userAgent';
 
-const isChrome = isBrowserChrome();
 export type ScrollToAlign = 'auto' | 'center' | 'start' | 'end';
 
 type itemSize = number | ((index: number) => number);
@@ -192,7 +190,7 @@ export default function createListComponent({
           scrollByValue,
         }),
         () => {
-          if (isChrome && useAnimationFrame) {
+          if (useAnimationFrame) {
             this._scrollByCorrection = window.requestAnimationFrame(
               this.scrollBy(this.state.scrollOffset, this.state.scrollByValue)
             );
